@@ -11,7 +11,7 @@ metadata:
 
 spec:
   owner: engineering
-  type: Documentation
+  type: documentation
   parameters:
     - title: Fill in some steps
       required:
