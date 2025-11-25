@@ -1,0 +1,101 @@
+# Enforce Workspace Budget and Rate Limits
+
+> Configure budget and rate limits at the workspace level to effectively manage AI spending and resource allocation
+
+<Info>
+  Available on **Enterprise** plan and select **Pro** customers.
+</Info>
+
+## Overview
+
+Workspace Budget Limits provide granular financial and usage control at the workspace level, allowing organization admins/owners and workspace admins to allocate resources effectively across teams and projects. This feature complements API key-level budget controls, creating a comprehensive governance framework for AI spending across your organization.
+
+By implementing budget and rate limits at the workspace level, you can:
+
+* Allocate specific budgets to different departments, teams, or projects
+* Prevent individual workspaces from consuming disproportionate resources
+* Establish rate limits to ensure equitable API access across workspaces
+* Maintain greater visibility and control over organization-wide AI expenditure
+
+## Accessing Workspace Budget Controls
+
+To configure budget limits for a workspace:
+
+1. In the app sidebar, click **Workspace Control** for the workspace you want to manage
+2. Select the **Budget Allocation** tab
+3. Add your workspace rate limits and budgets, then click **Update**
+
+### Who can manage workspace budgets
+
+  The following roles can configure workspace budgets and rate limits:
+
+  * Organization owners and organization admins
+  * Workspace admins
+  * Workspace managers (if the org admin has enabled "Workspace Management Permissions" in Admin Settings)
+
+![alt text](image-9.png)
+
+
+## Setting Rate Limits
+
+Rate limits control how frequently requests can be made from a workspace, helping you maintain application performance and prevent unexpected usage spikes.
+
+To set up rate limits for a workspace:
+
+1. Toggle on **Add Rate Limit**
+2. Choose your limit type:
+   * **Requests**: Limit based on number of API calls
+   * **Tokens**: Limit based on token consumption
+3. Specify the limit value in the **Set Rate Limit** field
+4. Select a time interval from the dropdown (Requests/Minute, Requests/Hour, Requests/Day)
+
+When a workspace reaches its rate limit, all subsequent requests from that workspace will be rejected until the time interval resets, regardless of which API key is used.
+
+## Setting Budget Limits
+
+Budget limits allow you to set maximum spending or token usage thresholds for an entire workspace, automatically preventing further usage when limits are reached.
+
+To set up budget limits for a workspace:
+
+1. Toggle on **Add Budget**
+2. Choose your limit type:
+   * **Cost**: Set a maximum spend in USD
+   * **Tokens**: Set a maximum token usage
+3. Enter the budget amount in the **Budget Limit (\$)** field
+4. Optionally, set an **Alert Threshold (\$)** to receive notifications before reaching the full budget
+5. Select a **Periodic Reset** option to determine when the budget refreshes
+
+### Alert Thresholds
+
+Alert thresholds trigger notifications when a percentage of the workspace budget has been consumed:
+
+1. Enter a value in the **Alert Threshold (\$)** field
+2. When usage reaches this threshold, notifications will be sent to configured recipients
+3. The workspace continues to function until the full budget limit is reached
+
+### Periodic Reset Options
+
+Workspace budgets can be set to automatically reset at regular intervals:
+
+* **No Periodic Reset**: The budget limit applies until exhausted
+* **Reset Weekly**: Budget limits reset every Sunday at 12 AM UTC
+* **Reset Monthly**: Budget limits reset on the 1st of each month at 12 AM UTC
+
+> The configuration options for workspace budgets and rate limits are the same as other budget and rate limit controls in the Portkey app (for API keys and providers). If you're familiar with those, this will feel identical—just applied at the workspace level.
+
+## Notification System
+
+When workspace limits are approached or reached, Portkey automatically sends notifications to:
+
+* Organization administrators and owners
+
+## Use Cases
+
+Workspace budget limits are particularly useful for:
+
+* **Departmental Allocations**: Assign specific AI budgets to different departments (Marketing, Customer Support, R\&D)
+* **Project Management**: Allocate resources based on project priority and requirements
+* **Cost Center Tracking**: Monitor and control spending across different cost centers
+* **Phased Rollouts**: Gradually increase limits as teams demonstrate value and mature their AI use cases
+
+Learn more here: [https://portkey.ai/docs/product/enterprise-offering/org-management/workspaces](https://portkey.ai/docs/product/enterprise-offering/org-management/workspaces)

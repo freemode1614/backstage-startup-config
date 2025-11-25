@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: llmops
+  description: Everything related to llmops
+  tags:
+    - portal
+spec:
+  owner: engineering
+  domain: ai
+  type: service

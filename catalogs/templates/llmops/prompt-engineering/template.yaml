@@ -1,0 +1,63 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+# https://backstage.io/docs/features/software-catalog/descriptor-format#kind-template
+kind: Template
+metadata:
+  name: prompt-engineering-template
+  title: Prompt Engineering Project Template
+  description: This paradigm improves output quality and decision-making robustness by introducing adversarial or diverse perspectives. The system initiates multiple agents to process the same problem from different angles (e.g., a proponent, an opponent, a risk analyst). These agents debate with each other, challenging each other’s viewpoints and proposals. Finally, an “Arbitrator” or “Synthesizer” agent integrates the arguments from all agents to form a more comprehensive, balanced, and well-considered final conclusion. This is particularly effective in scenarios requiring deep analysis, risk assessment, or creative generation.
+  tags:
+    - python
+    - llmops
+    - fastapi
+    - jupyter-notebook
+spec:
+  owner: engineering
+  type: library
+  # These parameters are used to generate the input form in the frontend, and are
+  # used to gather input data for the execution of the template.
+  parameters:
+    - title: Project Name
+      name: project_name
+      type: string
+
+    - title: Choose a location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+  steps:
+    - id: fetch
+      action: fetch:template
+      input:
+        url: ./content
+        values:
+          project_name: ${{ parameters.project_name }}
+    - id: publish
+      action: publish:github
+      input:
+        description: This is ${{ parameters.name }}
+        repoUrl: ${{ parameters.repoUrl }}
+        defaultBranch: 'main'
+
+    # The final step is to register our new component in the catalog.
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+
+  # Outputs are displayed to the user after a successful execution of the template.
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish'].output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps['register'].output.entityRef }}

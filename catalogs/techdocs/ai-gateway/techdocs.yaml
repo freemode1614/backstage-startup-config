@@ -1,0 +1,13 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ai-gateway-docs
+  description: Documentation for the AI Gateway.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    grafana/dashboard-selector: "url!='goto/ef4oom5htwttse?orgId=1'"
+spec:
+  type: documentation
+  lifecycle: production
+  owner: engineering
+  # system: public-websites

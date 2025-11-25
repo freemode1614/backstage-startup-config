@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: systems
+  description: A collection of all Backstage example systems
+spec:
+  targets:
+    # - ./systems/artist-engagement-portal-system.yaml
+    # - ./systems/audio-playback-system.yaml
+    # - ./systems/podcast-system.yaml
+    - ./systems/security-guardrails.yaml
+    - ./systems/observability.yaml
+    - ./systems/llmops.yaml
+    - ./systems/ai-gateway.yaml

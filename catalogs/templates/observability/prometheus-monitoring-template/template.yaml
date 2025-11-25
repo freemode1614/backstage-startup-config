@@ -1,0 +1,28 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: prometheus-monitoring-template
+  title: Prometheus Monitoring Service Template
+  description: Quickly bootstrap standardized Prometheus monitoring configurations for any new service, including metric scraping and alerting rules.
+  tags:
+    - yaml
+    - prometheus
+    - observability
+spec:
+  owner: engineering
+  type: service
+  parameters:
+    - title: Service Name
+      name: service_name
+      type: string
+  steps:
+    - id: fetch
+      action: fetch:template
+      input:
+        url: ./templates/prometheus-monitoring
+        values:
+          service_name: ${{ parameters.service_name }}
+    - id: publish
+      action: publish:github
+      input:
+        repoUrl: 'github.com?owner=your-org&repo=${{ parameters.service_name }}-monitoring'

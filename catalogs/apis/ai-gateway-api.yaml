@@ -1,0 +1,1220 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: ai-gateway-api
+  description: Central Platform AI-Gateway API
+  tags:
+    - ai-gateway
+    - api
+    - rest
+spec:
+  type: openapi
+  lifecycle: production
+  owner: engineering
+  definition: |
+    openapi: 3.1.0
+    info:
+      title: Chat API
+      version: 1.0.0
+      description: API for chat completions with multiple providers
+    servers:
+      - url: https://api.portkey.ai/v1
+        description: Portkey API Public Endpoint
+      - url: SELF_HOSTED_GATEWAY_URL
+        description: Self-Hosted Gateway URL
+    paths:
+      /chat/completions:
+        post:
+          summary: Create chat completion
+          operationId: createChatCompletion
+          deprecated: false
+          security:
+            - PortkeyApiKeyAndVirtualKey: []
+            - PortkeyApiKeyAndProviderAuth: []
+            - PortkeyApiKeyAndConfig: []
+            - PortkeyApiKeyAndProviderAuthAndCustomHost: []
+          parameters:
+            - name: x-portkey-trace-id
+              in: header
+              schema:
+                type: string
+              description: |
+                An ID you can pass to refer to one or more requests later on. If not provided, Portkey generates a trace ID automatically for each request.
+                [Docs](https://portkey.ai/docs/product/observability/traces)
+            - name: x-portkey-span-id
+              in: header
+              schema:
+                type: string
+              description: An ID you can pass to refer to a span under a trace.
+            - name: x-portkey-parent-span-id
+              in: header
+              schema:
+                type: string
+              description: Link a child span to a parent span
+            - name: x-portkey-span-name
+              in: header
+              schema:
+                type: string
+              description: Name for the Span ID
+            - name: x-portkey-metadata
+              in: header
+              schema:
+                type: object
+              description: Pass any arbitrary metadata along with your request
+            - name: x-portkey-cache-namespace
+              in: header
+              schema:
+                type: string
+              description: |
+                Partition your Portkey cache store based on custom strings,
+                ignoring metadata and other headers
+            - name: x-portkey-cache-force-refresh
+              in: header
+              schema:
+                type: boolean
+              description: |
+                Forces a cache refresh for your request by making a new API call
+                and storing the updated value
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/CreateChatCompletionRequest'
+                examples:
+                  default:
+                    value:
+                      messages:
+                        - role: system
+                          content: You are a helpful assistant.
+                        - role: user
+                          content: Hello!
+                      model: gpt-4o
+                      frequency_penalty: 0
+                      logit_bias: null
+                      logprobs: false
+                      top_logprobs: 10
+                      max_tokens: 123
+                      n: 1
+                      presence_penalty: 0
+                      response_format:
+                        type: text
+                      seed: 0
+                      stop: <string>
+                      stream: false
+                      stream_options: null
+                      thinking:
+                        type: enabled
+                        budget_tokens: 2030
+                      temperature: 1
+                      top_p: 1
+                      tools:
+                        - type: function
+                          function:
+                            description: <string>
+                            name: <string>
+                            parameters: {}
+                            strict: false
+                      tool_choice: none
+                      parallel_tool_calls: true
+                      user: user-1234
+                      function_call: none
+                      functions:
+                        - description: <string>
+                          name: <string>
+                          parameters: {}
+          responses:
+            '200':
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/CreateChatCompletionResponse'
+                  examples:
+                    default:
+                      value:
+                        id: <string>
+                        choices:
+                          - finish_reason: stop
+                            index: 123
+                            message:
+                              content: <string>
+                              tool_calls:
+                                - id: <string>
+                                  type: function
+                                  function:
+                                    name: <string>
+                                    arguments: <string>
+                              role: assistant
+                              function_call:
+                                arguments: <string>
+                                name: <string>
+                              content_blocks:
+                                - type: text
+                                  text: <string>
+                            logprobs:
+                              content:
+                                - token: <string>
+                                  logprob: 123
+                                  bytes:
+                                    - 123
+                                    - 123
+                                  top_logprobs:
+                                    - token: <string>
+                                      logprob: 123
+                                      bytes:
+                                        - 123
+                        created: 123
+                        model: <string>
+                        system_fingerprint: <string>
+                        object: chat.completion
+                        usage:
+                          completion_tokens: 123
+                          prompt_tokens: 123
+                          total_tokens: 123
+          x-code-samples:
+            - lang: cURL
+              label: Default
+              source: |
+                curl https://api.portkey.ai/v1/chat/completions \
+                  -H "Content-Type: application/json" \
+                  -H "x-portkey-api-key: $PORTKEY_API_KEY" \
+                  -H "x-portkey-virtual-key: $PORTKEY_PROVIDER_VIRTUAL_KEY" \
+                  -d '{
+                    "model": "gpt-4o",
+                    "messages": [
+                      {
+                        "role": "system",
+                        "content": "You are a helpful assistant."
+                      },
+                      {
+                        "role": "user",
+                        "content": "Hello!"
+                      }
+                    ]
+                  }'
+            - lang: cURL
+              label: Self-Hosted
+              source: |
+                curl SELF_HOSTED_GATEWAY_URL/chat/completions \
+                  -H "Content-Type: application/json" \
+                  -H "x-portkey-api-key: $PORTKEY_API_KEY" \
+                  -H "x-portkey-virtual-key: $PORTKEY_PROVIDER_VIRTUAL_KEY" \
+                  -d '{
+                    "model": "gpt-4o",
+                    "messages": [
+                      {
+                        "role": "system",
+                        "content": "You are a helpful assistant."
+                      },
+                      {
+                        "role": "user",
+                        "content": "Hello!"
+                      }
+                    ]
+                  }'
+            - lang: python
+              label: Default
+              source: |
+                from portkey_ai import Portkey
+
+                portkey = Portkey(
+                  api_key = "PORTKEY_API_KEY",
+                  virtual_key = "PROVIDER_VIRTUAL_KEY"
+                )
+
+                response = portkey.chat.completions.create(
+                  model="gpt-4o",
+                  messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": "Hello!"}
+                  ]
+                )
+
+                print(response.choices[0].message)
+            - lang: python
+              label: Self-Hosted
+              source: |
+                from portkey_ai import Portkey
+
+                portkey = Portkey(
+                  api_key = "PORTKEY_API_KEY",
+                  base_url = "SELF_HOSTED_GATEWAY_URL",
+                  virtual_key = "PROVIDER_VIRTUAL_KEY"
+                )
+
+                response = portkey.chat.completions.create(
+                  model="gpt-4o",
+                  messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": "Hello!"}
+                  ]
+                )
+
+                print(response.choices[0].message)
+            - lang: javascript
+              label: Default
+              source: |
+                import Portkey from 'portkey-ai';
+
+                const portkey = new Portkey({
+                  apiKey: 'PORTKEY_API_KEY',
+                  virtualKey: 'PROVIDER_VIRTUAL_KEY'
+                });
+
+                async function main() {
+                  const response = await portkey.chat.completions.create({
+                    messages: [{ role: "system", content: "You are a helpful assistant." }],
+                    model: "gpt-4o",
+                  });
+
+                  console.log(response.choices[0]);
+                }
+
+                main();
+            - lang: javascript
+              label: Self-Hosted
+              source: |
+                import Portkey from 'portkey-ai';
+
+                const portkey = new Portkey({
+                  apiKey: 'PORTKEY_API_KEY',
+                  virtualKey: 'PROVIDER_VIRTUAL_KEY',
+                  baseUrl: 'SELF_HOSTED_GATEWAY_URL'
+                });
+
+                async function main() {
+                  const response = await portkey.chat.completions.create({
+                    messages: [{ role: "system", content: "You are a helpful assistant." }],
+                    model: "gpt-4o",
+                  });
+
+                  console.log(response.choices[0]);
+                }
+
+                main();
+    components:
+      schemas:
+        CreateChatCompletionRequest:
+          type: object
+          required:
+            - model
+            - messages
+          properties:
+            messages:
+              type: array
+              minItems: 1
+              description: |
+                A list of messages comprising the conversation so far.
+                [Example Python code](https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models).
+              items:
+                $ref: '#/components/schemas/ChatCompletionRequestMessage'
+            model:
+              description: |
+                ID of the model to use. See the [model endpoint compatibility](https://platform.openai.com/docs/models/model-endpoint-compatibility)
+                table for details on which models work with the Chat API.
+              oneOf:
+                - type: string
+                - type: string
+                  enum:
+                    - gpt-4o
+                    - gpt-4o-2024-05-13
+                    - gpt-4-turbo
+                    - gpt-4-turbo-2024-04-09
+                    - gpt-4-0125-preview
+                    - gpt-4-turbo-preview
+                    - gpt-4-1106-preview
+                    - gpt-4-vision-preview
+                    - gpt-4
+                    - gpt-4-0314
+                    - gpt-4-0613
+                    - gpt-4-32k
+                    - gpt-4-32k-0314
+                    - gpt-4-32k-0613
+                    - gpt-3.5-turbo
+                    - gpt-3.5-turbo-16k
+                    - gpt-3.5-turbo-0301
+                    - gpt-3.5-turbo-0613
+                    - gpt-3.5-turbo-1106
+                    - gpt-3.5-turbo-0125
+                    - gpt-3.5-turbo-16k-0613
+              example: gpt-4-turbo
+            frequency_penalty:
+              type: number
+              default: 0
+              minimum: -2
+              maximum: 2
+              nullable: true
+              description: |
+                Number between -2.0 and 2.0. Positive values penalize new
+                tokens based on their existing frequency in the text so
+                far, decreasing the model's likelihood to repeat the same
+                line verbatim.
+                [See more information about frequency and presence penalties.](https://platform.openai.com/docs/guides/text-generation/parameter-details)
+            logit_bias:
+              type: object
+              nullable: true
+              default: null
+              additionalProperties:
+                type: integer
+              description: |
+                Modify the likelihood of specified tokens appearing in the
+                completion.
+                Accepts a JSON object that maps tokens (specified by their
+                token ID in the tokenizer) to an associated bias value
+                from -100 to 100.
+            logprobs:
+              type: boolean
+              default: false
+              nullable: true
+              description: |
+                Whether to return log probabilities of the output tokens
+                or not. If true, returns the log probabilities of each
+                output token returned in the `content` of `message`.
+            top_logprobs:
+              type: integer
+              minimum: 0
+              maximum: 20
+              nullable: true
+              description: |
+                An integer between 0 and 20 specifying the number of most
+                likely tokens to return at each token position, each with
+                an associated log probability. `logprobs` must be set to
+                `true` if this parameter is used.
+            max_tokens:
+              type: integer
+              nullable: true
+              description: |
+                The maximum number of [tokens](https://platform.openai.com/tokenizer?view=bpe)
+                that can be generated in the chat completion.
+                The total length of input tokens and generated tokens is
+                limited by the model's context length.
+            n:
+              type: integer
+              minimum: 1
+              maximum: 128
+              default: 1
+              example: 1
+              nullable: true
+              description: |
+                How many chat completion choices to generate for each
+                input message. Note that you will be charged based on the
+                number of generated tokens across all of the choices. Keep
+                `n` as `1` to minimize costs.
+            presence_penalty:
+              type: number
+              default: 0
+              minimum: -2
+              maximum: 2
+              nullable: true
+              description: |
+                Number between -2.0 and 2.0. Positive values penalize new
+                tokens based on whether they appear in the text so far,
+                increasing the model's likelihood to talk about new
+                topics.
+                [See more information about frequency and presence penalties.](https://platform.openai.com/docs/guides/text-generation/parameter-details)
+            response_format:
+              oneOf:
+                - $ref: '#/components/schemas/ResponseFormatText'
+                - $ref: '#/components/schemas/ResponseFormatJsonSchema'
+                - $ref: '#/components/schemas/ResponseFormatJsonObject'
+              description: |
+                An object specifying the format that the model must
+                output.
+                Setting to `{ "type": "json_schema", "json_schema": {...} }`enables Structured Outputs
+                Setting to `{ "type": "json_object" }` enables the older JSON mode.
+            seed:
+              type: integer
+              minimum: -9223372036854776000
+              maximum: 9223372036854776000
+              nullable: true
+              description: |
+                This feature is in Beta.
+                If specified, our system will make a best effort to sample
+                deterministically, such that repeated requests with the
+                same `seed` and parameters should return the same result.
+            stop:
+              oneOf:
+                - type: string
+                  nullable: true
+                - type: array
+                  minItems: 1
+                  maxItems: 4
+                  items:
+                    type: string
+              default: null
+              description: |
+                Up to 4 sequences where the API will stop generating
+                further tokens.
+            stream:
+              type: boolean
+              nullable: true
+              default: false
+              description: |
+                If set, partial message deltas will be sent, like in
+                ChatGPT. Tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format)
+                as they become available, with the stream terminated by a
+                `data: [DONE]` message.
+            stream_options:
+              $ref: '#/components/schemas/ChatCompletionStreamOptions'
+            thinking:
+              type: object
+              nullable: true
+              description: |
+                View the thinking/reasoning tokens as part of your
+                response. Thinking models produce a long internal chain of
+                thought before generating a response. Supported only for
+                specific Claude models on Anthropic, Google Vertex AI, and
+                AWS Bedrock. Requires setting `strict_openai_compliance = false`.
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - enabled
+                    - disabled
+                  default: disabled
+                  description: Enables or disables the thinking mode capability.
+                budget_tokens:
+                  type: integer
+                  minimum: 1
+                  example: 2030
+                  description: |
+                    The maximum number of tokens to allocate for the
+                    thinking process.
+              required:
+                - type
+              example:
+                type: enabled
+                budget_tokens: 2030
+            temperature:
+              type: number
+              minimum: 0
+              maximum: 2
+              default: 1
+              example: 1
+              nullable: true
+              description: |
+                What sampling temperature to use, between 0 and 2. Higher
+                values like 0.8 will make the output more random, while
+                lower values like 0.2 will make it more focused and
+                deterministic.
+            top_p:
+              type: number
+              minimum: 0
+              maximum: 1
+              default: 1
+              example: 1
+              nullable: true
+              description: |
+                An alternative to sampling with temperature, called
+                nucleus sampling, where the model considers the results of
+                the tokens with top_p probability mass.
+            tools:
+              type: array
+              description: |
+                A list of tools the model may call. Currently, only
+                functions are supported as a tool.
+              items:
+                $ref: '#/components/schemas/ChatCompletionTool'
+            tool_choice:
+              $ref: '#/components/schemas/ChatCompletionToolChoiceOption'
+            parallel_tool_calls:
+              $ref: '#/components/schemas/ParallelToolCalls'
+            user:
+              type: string
+              example: user-1234
+              description: |
+                A unique identifier representing your end-user, which can
+                help OpenAI to monitor and detect abuse.
+            function_call:
+              deprecated: true
+              description: |
+                Deprecated in favor of `tool_choice`.
+                Controls which (if any) function is called by the model.
+              oneOf:
+                - type: string
+                  enum:
+                    - none
+                    - auto
+                - $ref: '#/components/schemas/ChatCompletionFunctionCallOption'
+            functions:
+              deprecated: true
+              type: array
+              minItems: 1
+              maxItems: 128
+              description: |
+                Deprecated in favor of `tools`.
+                A list of functions the model may generate JSON inputs for.
+              items:
+                $ref: '#/components/schemas/ChatCompletionFunctions'
+        CreateChatCompletionResponse:
+          type: object
+          required:
+            - choices
+            - created
+            - id
+            - model
+            - object
+          properties:
+            id:
+              type: string
+              description: A unique identifier for the chat completion.
+            choices:
+              type: array
+              description: |
+                A list of chat completion choices. Can be more than one if
+                `n` is greater than 1.
+              items:
+                type: object
+                required:
+                  - finish_reason
+                  - index
+                  - message
+                  - logprobs
+                properties:
+                  finish_reason:
+                    type: string
+                    enum:
+                      - stop
+                      - length
+                      - tool_calls
+                      - content_filter
+                      - function_call
+                    description: |
+                      The reason the model stopped generating tokens.
+                  index:
+                    type: integer
+                    description: The index of the choice in the list of choices.
+                  message:
+                    $ref: '#/components/schemas/ChatCompletionResponseMessage'
+                  logprobs:
+                    $ref: '#/components/schemas/ChatCompletionTokenLogprob'
+            created:
+              type: integer
+              description: |
+                The Unix timestamp (in seconds) of when the chat
+                completion was created.
+            model:
+              type: string
+              description: The model used for the chat completion.
+            system_fingerprint:
+              type: string
+              description: |
+                This fingerprint represents the backend configuration that
+                the model runs with.
+            object:
+              type: string
+              enum:
+                - chat.completion
+              description: The object type, which is always `chat.completion`.
+            usage:
+              $ref: '#/components/schemas/CompletionUsage'
+          description: |
+            Represents a chat completion response returned by model, based on
+            the provided input.
+        ChatCompletionRequestMessage:
+          oneOf:
+            - $ref: '#/components/schemas/ChatCompletionRequestSystemMessage'
+            - $ref: '#/components/schemas/ChatCompletionRequestDeveloperMessage'
+            - $ref: '#/components/schemas/ChatCompletionRequestUserMessage'
+            - $ref: '#/components/schemas/ChatCompletionRequestAssistantMessage'
+            - $ref: '#/components/schemas/ChatCompletionRequestToolMessage'
+            - $ref: '#/components/schemas/ChatCompletionRequestFunctionMessage'
+        ChatCompletionRequestSystemMessage:
+          type: object
+          title: System message
+          required:
+            - content
+            - role
+          properties:
+            content:
+              type: string
+              description: The contents of the system message.
+            role:
+              type: string
+              enum:
+                - system
+              description: The role of the messages author, in this case `system`.
+            name:
+              type: string
+              description: |
+                An optional name for the participant. Provides the model information
+                to differentiate between participants of the same role.
+        ChatCompletionRequestDeveloperMessage:
+          type: object
+          title: Developer message
+          required:
+            - content
+            - role
+          properties:
+            content:
+              type: string
+              description: The contents of the Developer message.
+            role:
+              type: string
+              enum:
+                - developer
+              description: The role of the messages author, in this case `Developer`.
+            name:
+              type: string
+              description: |
+                An optional name for the participant. Provides the model information
+                to differentiate between participants of the same role.
+        ChatCompletionRequestUserMessage:
+          type: object
+          title: User message
+          required:
+            - content
+            - role
+          properties:
+            content:
+              oneOf:
+                - type: string
+                  description: The text contents of the message.
+                  title: Text content
+                - type: array
+                  minItems: 1
+                  items:
+                    $ref: '#/components/schemas/ChatCompletionRequestMessageContentPart'
+                  title: Array of content parts
+            role:
+              type: string
+              enum:
+                - user
+              description: The role of the messages author, in this case `user`.
+            name:
+              type: string
+              description: |
+                An optional name for the participant. Provides the model information
+                to differentiate between participants of the same role.
+        ChatCompletionRequestAssistantMessage:
+          type: object
+          title: Assistant message
+          required:
+            - role
+          properties:
+            content:
+              type: string
+              nullable: true
+              description: |
+                The contents of the assistant message. Required unless `tool_calls`
+                or `function_call` is specified.
+            role:
+              type: string
+              enum:
+                - assistant
+              description: The role of the messages author, in this case `assistant`.
+            name:
+              type: string
+              description: |
+                An optional name for the participant. Provides the model information
+                to differentiate between participants of the same role.
+            tool_calls:
+              $ref: '#/components/schemas/ChatCompletionMessageToolCalls'
+            function_call:
+              deprecated: true
+              type: object
+              nullable: true
+              description: |
+                Deprecated and replaced by `tool_calls`. The name and arguments of a
+                function that should be called, as generated by the model.
+              required:
+                - arguments
+                - name
+              properties:
+                arguments:
+                  type: string
+                  description: |
+                    The arguments to call the function with, as generated by the
+                    model in JSON format.
+                name:
+                  type: string
+                  description: The name of the function to call.
+        ChatCompletionRequestToolMessage:
+          type: object
+          title: Tool message
+          required:
+            - role
+            - content
+            - tool_call_id
+          properties:
+            role:
+              type: string
+              enum:
+                - tool
+              description: The role of the messages author, in this case `tool`.
+            content:
+              type: string
+              description: The contents of the tool message.
+            tool_call_id:
+              type: string
+              description: Tool call that this message is responding to.
+        ChatCompletionRequestFunctionMessage:
+          deprecated: true
+          type: object
+          title: Function message
+          required:
+            - role
+            - content
+            - name
+          properties:
+            role:
+              type: string
+              enum:
+                - function
+              description: The role of the messages author, in this case `function`.
+            content:
+              type: string
+              nullable: true
+              description: The contents of the function message.
+            name:
+              type: string
+              description: The name of the function to call.
+        ChatCompletionRequestMessageContentPart:
+          oneOf:
+            - $ref: '#/components/schemas/ChatCompletionRequestMessageContentPartText'
+            - $ref: '#/components/schemas/ChatCompletionRequestMessageContentPartImage'
+        ChatCompletionRequestMessageContentPartText:
+          type: object
+          title: Text content part
+          required:
+            - type
+            - text
+          properties:
+            type:
+              type: string
+              enum:
+                - text
+              description: The type of the content part.
+            text:
+              type: string
+              description: The text content.
+        ChatCompletionRequestMessageContentPartImage:
+          type: object
+          title: Image content part
+          required:
+            - type
+            - image_url
+          properties:
+            type:
+              type: string
+              enum:
+                - image_url
+              description: The type of the content part.
+            image_url:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  description: Either a URL of the image or the base64 encoded image data.
+                detail:
+                  type: string
+                  enum:
+                    - auto
+                    - low
+                    - high
+                  default: auto
+                  description: |
+                    Specifies the detail level of the image. Learn more in the
+                    [Vision guide](https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding).
+        ChatCompletionResponseMessage:
+          type: object
+          required:
+            - role
+            - content
+          properties:
+            content:
+              type: string
+              nullable: true
+              description: The contents of the message.
+            tool_calls:
+              $ref: '#/components/schemas/ChatCompletionMessageToolCalls'
+            role:
+              type: string
+              enum:
+                - assistant
+              description: The role of the author of this message.
+            function_call:
+              deprecated: true
+              type: object
+              description: |
+                Deprecated and replaced by `tool_calls`. The name and arguments of a
+                function that should be called, as generated by the model.
+              required:
+                - arguments
+                - name
+              properties:
+                arguments:
+                  type: string
+                  description: |
+                    The arguments to call the function with, as generated by the
+                    model in JSON format.
+                name:
+                  type: string
+                  description: The name of the function to call.
+            content_blocks:
+              type: array
+              nullable: true
+              description: |
+                The content blocks of the message. This is only present for certain
+                providers with strict-open-ai-compliance flag set to false
+              items:
+                $ref: '#/components/schemas/ChatCompletionMessageContentBlock'
+        ChatCompletionMessageContentBlock:
+          oneOf:
+            - $ref: '#/components/schemas/ChatCompletionRequestMessageContentPartText'
+            - $ref: '#/components/schemas/ChatCompletionMessageContentPartThinking'
+            - $ref: '#/components/schemas/ChatCompletionMessageContentPartRedactedThinking'
+        ChatCompletionMessageContentPartThinking:
+          type: object
+          title: Thinking content part
+          required:
+            - type
+            - thinking
+          properties:
+            type:
+              type: string
+              enum:
+                - thinking
+              description: The type of the content part.
+            thinking:
+              type: string
+              description: The thinking content.
+        ChatCompletionMessageContentPartRedactedThinking:
+          type: object
+          title: Redacted thinking content part
+          required:
+            - type
+            - data
+          properties:
+            type:
+              type: string
+              enum:
+                - redacted_thinking
+              description: The type of the content part.
+            data:
+              type: string
+              description: The redacted thinking content.
+        ChatCompletionMessageToolCalls:
+          type: array
+          description: The tool calls generated by the model, such as function calls.
+          items:
+            $ref: '#/components/schemas/ChatCompletionMessageToolCall'
+        ChatCompletionMessageToolCall:
+          type: object
+          required:
+            - id
+            - type
+            - function
+          properties:
+            id:
+              type: string
+              description: The ID of the tool call.
+            type:
+              type: string
+              enum:
+                - function
+              description: The type of the tool. Currently, only `function` is supported.
+            function:
+              type: object
+              required:
+                - name
+                - arguments
+              properties:
+                name:
+                  type: string
+                  description: The name of the function to call.
+                arguments:
+                  type: string
+                  description: |
+                    The arguments to call the function with, as generated by the
+                    model in JSON format.
+        ChatCompletionTokenLogprob:
+          type: object
+          required:
+            - token
+            - logprob
+            - bytes
+            - top_logprobs
+          properties:
+            token:
+              type: string
+              description: The token.
+            logprob:
+              type: number
+              description: |
+                The log probability of this token, if it is within the top 20 most
+                likely tokens. Otherwise, the value `-9999.0` is used to signify
+                that the token is very unlikely.
+            bytes:
+              type: array
+              items:
+                type: integer
+              nullable: true
+              description: |
+                A list of integers representing the UTF-8 bytes representation of
+                the token.
+            top_logprobs:
+              type: array
+              items:
+                type: object
+                required:
+                  - token
+                  - logprob
+                  - bytes
+                properties:
+                  token:
+                    type: string
+                    description: The token.
+                  logprob:
+                    type: number
+                    description: |
+                      The log probability of this token, if it is within the top 20
+                      most likely tokens.
+                  bytes:
+                    type: array
+                    items:
+                      type: integer
+                    nullable: true
+                    description: |
+                      A list of integers representing the UTF-8 bytes representation
+                      of the token.
+        CompletionUsage:
+          type: object
+          required:
+            - prompt_tokens
+            - completion_tokens
+            - total_tokens
+          properties:
+            completion_tokens:
+              type: integer
+              description: Number of tokens in the generated completion.
+            prompt_tokens:
+              type: integer
+              description: Number of tokens in the prompt.
+            total_tokens:
+              type: integer
+              description: Total number of tokens used in the request (prompt + completion).
+        ResponseFormatText:
+          type: object
+          title: Text
+          required:
+            - type
+          properties:
+            type:
+              type: string
+              enum:
+                - text
+              description: The type of response format being defined. Always `text`.
+        ResponseFormatJsonObject:
+          type: object
+          title: JSON object
+          required:
+            - type
+          properties:
+            type:
+              type: string
+              enum:
+                - json_object
+              description: The type of response format being defined. Always `json_object`.
+          description: |
+            JSON object response format. An older method of generating JSON
+            responses.
+            Using `json_schema` is recommended for models that support it.
+        ResponseFormatJsonSchema:
+          type: object
+          title: JSON schema
+          required:
+            - type
+            - json_schema
+          properties:
+            type:
+              type: string
+              enum:
+                - json_schema
+              description: The type of response format being defined. Always `json_schema`.
+            json_schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: |
+                    The name of the response format. Must be a-z, A-Z, 0-9, or
+                    contain underscores and dashes, with a maximum length of 64.
+                description:
+                  type: string
+                  description: |
+                    A description of what the response format is for, used by the
+                    model to determine how to respond in the format.
+                schema:
+                  $ref: '#/components/schemas/ResponseFormatJsonSchemaSchema'
+                strict:
+                  type: boolean
+                  default: false
+                  description: |
+                    Whether to enable strict schema adherence when generating the
+                    output.
+          description: |
+            JSON Schema response format. Used to generate structured JSON responses.
+            Learn more about [Structured Outputs](/docs/guides/structured-outputs).
+        ResponseFormatJsonSchemaSchema:
+          type: object
+          description: |
+            The schema for the response format, described as a JSON Schema object.
+            Learn how to build JSON schemas [here](https://json-schema.org/).
+          additionalProperties: true
+        ChatCompletionStreamOptions:
+          type: object
+          nullable: true
+          default: null
+          properties:
+            include_usage:
+              type: boolean
+              description: |
+                If set, an additional chunk will be streamed before the `data:
+                [DONE]` message. The `usage` field on this chunk shows the token
+                usage statistics for the entire request.
+        ChatCompletionTool:
+          type: object
+          required:
+            - type
+            - function
+          properties:
+            type:
+              type: string
+              enum:
+                - function
+              description: The type of the tool. Currently, only `function` is supported.
+            function:
+              $ref: '#/components/schemas/FunctionObject'
+        FunctionObject:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              description: |
+                The name of the function to be called. Must be a-z, A-Z, 0-9, or
+                contain underscores and dashes, with a maximum length of 64.
+            description:
+              type: string
+              description: |
+                A description of what the function does, used by the model to choose
+                when and how to call the function.
+            parameters:
+              $ref: '#/components/schemas/FunctionParameters'
+            strict:
+              type: boolean
+              default: false
+              description: |
+                Whether to enable strict schema adherence when generating the
+                function call.
+        FunctionParameters:
+          type: object
+          description: |
+            The parameters the functions accepts, described as a JSON Schema object.
+            See the [guide](https://platform.openai.com/docs/guides/function-calling) for
+            examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for
+            documentation about the format.
+          additionalProperties: true
+        ChatCompletionToolChoiceOption:
+          oneOf:
+            - type: string
+              enum:
+                - none
+                - auto
+                - required
+              description: |
+                `none` means the model will not call any tool and instead generates
+                a message. `auto` means the model can pick between generating a
+                message or calling one or more tools. `required` means the model
+                must call one or more tools.
+            - $ref: '#/components/schemas/ChatCompletionNamedToolChoice'
+          description: |
+            Controls which (if any) tool is called by the model.
+            `none` is the default when no tools are present. `auto` is the default
+            if tools are present.
+        ChatCompletionNamedToolChoice:
+          type: object
+          required:
+            - type
+            - function
+          properties:
+            type:
+              type: string
+              enum:
+                - function
+              description: The type of the tool. Currently, only `function` is supported.
+            function:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: The name of the function to call.
+          description: |
+            Specifies a tool the model should use. Use to force the model to call a
+            specific function.
+        ParallelToolCalls:
+          type: boolean
+          default: true
+          description: |
+            Whether to enable [parallel function calling](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling)
+            during tool use.
+        ChatCompletionFunctions:
+          deprecated: true
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              description: |
+                The name of the function to be called. Must be a-z, A-Z, 0-9, or
+                contain underscores and dashes, with a maximum length of 64.
+            description:
+              type: string
+              description: |
+                A description of what the function does, used by the model to choose
+                when and how to call the function.
+            parameters:
+              $ref: '#/components/schemas/FunctionParameters'
+        ChatCompletionFunctionCallOption:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              description: The name of the function to call.
+          description: |
+            Specifying a particular function via `{"name": "my_function"}` forces
+            the model to call that function.
+      securitySchemes:
+        PortkeyApiKeyAndVirtualKey:
+          type: apiKey
+          in: header
+          name: x-portkey-api-key
+          description: Requires both Portkey API key and Virtual key
+        PortkeyApiKeyAndProviderAuth:
+          type: apiKey
+          in: header
+          name: x-portkey-api-key
+          description: Requires Portkey API key, Provider auth (Bearer token), and Provider name
+        PortkeyApiKeyAndConfig:
+          type: apiKey
+          in: header
+          name: x-portkey-api-key
+          description: Requires Portkey API key and Config
+        PortkeyApiKeyAndProviderAuthAndCustomHost:
+          type: apiKey
+          in: header
+          name: x-portkey-api-key
+          description: Requires Portkey API key, Provider auth (Bearer token), Provider name, and Custom host

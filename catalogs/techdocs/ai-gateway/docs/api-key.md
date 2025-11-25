@@ -1,0 +1,69 @@
+# API Keys 
+
+> Discover how Admin and Workspace API Keys are used to manage access and operations in AI gateway.
+
+## API Keys
+
+AI gateway uses two types of API keys to manage access to resources and operations: **Admin API Keys** and **Workspace API Keys**. These keys play crucial roles in authenticating and authorizing various operations within your [organization](/product/enterprise-offering/org-management/organizations) and [workspaces](/api-reference/admin-api/control-plane/admin/workspaces/create-workspace).
+
+### Admin API Keys
+
+Admin API Keys operate at the organization level and provide broad access across all workspaces within an organization.
+
+Key features of Admin API Keys:
+
+* Created and managed by organization owners and admins
+* Provide access to organization-wide operations
+* Can perform actions across all workspaces in the organization
+* Used for administrative tasks and integrations that require broad access
+* When making updates to entities, can specify a workspace\_id to target specific workspaces
+
+Admin API Keys should be carefully managed and their use should be limited to necessary administrative operations due to their broad scope of access.
+
+
+
+### Workspace API Keys
+
+Workspace API Keys are scoped to a specific workspace and are used for operations within that workspace only.
+
+Key features of Workspace API Keys:
+
+* Two types: Service Account and User
+  * Service Account: Used for automated processes and integrations
+  * User: Associated with individual user accounts for personal access
+* Scoped to a single workspace by default
+* Can only execute actions within the workspace they belong to
+* Used for most day-to-day operations and integrations within a workspace
+* Completion APIs are always scoped by workspace and can only be accessed using Workspace API Keys
+* Can be created and managed by workspace managers
+
+Workspace API Keys provide a more granular level of access control, allowing you to manage permissions and resource usage at the project or team level.
+
+
+## Using API Key Scopes
+
+When creating or updating API keys, you can define specific permission scopes based on your security requirements:
+
+Both types of API keys play important roles in AI gateway's security model, enabling secure and efficient access to resources while maintaining proper separation of concerns between organization-wide administration and workspace-specific operations.
+
+## API Key in action
+
+![alt text](api-key-1.png)
+
+### create API Key
+
+what you can do for API key
+* types of the api key 
+  * Service Account: Used for automated processes and integrations
+  * User: Associated with individual user accounts for personal access
+* config - refer to the configure document
+* limit for this API KEY
+* permissions and some other config
+![alt text](api-key-2.png)
+
+The newly created API key scoped to a single workspace by default, you can apply to multiple workspace later.
+
+### update API Key
+
+
+

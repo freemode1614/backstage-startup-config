@@ -1,0 +1,13 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}
+  description: Documentation for the ${{ values.name }}.
+  tags:
+    - documentation
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  owner: engineering
+  type: documentation
+  lifecycle: production

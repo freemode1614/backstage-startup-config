@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ${{ values.name }}
+  annotations:
+    instrumentation.opentelemetry.io/inject-python: 'test-instrumentation'
+spec:
+  containers:
+    - name: ${{ values.name }}
+      image: registry.chengdu.local/devops/singtel-app-demo:0.0.1
+      ports:
+        - containerPort: 5000
+          protocol: TCP
+      env:
+        - name: OTEL_LOG_LEVEL
+          value: 'DEBUG' # 设置 OTel SDK 日志级别

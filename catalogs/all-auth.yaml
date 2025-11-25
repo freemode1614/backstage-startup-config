@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: auth
+  description: A collection of all auths
+spec:
+  targets:
+    - ./auth/auth.yaml

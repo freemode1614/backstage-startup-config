@@ -1,0 +1,180 @@
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: aida-team
+  title: AIDA TEAMS
+  description: "AIDA TEAMS"
+spec:
+  type: department
+  children: [engineering]
+  profile:
+    displayName: AIDA TEAMS
+    email: engineering@example.com
+    picture: https://example.com/engineering.jpg
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: engineering
+  title: Engineering department
+  description: "Main engineering department responsible for all technical development"
+spec:
+  type: department
+  children: [frontend-team, backend-team, devops-team]
+  profile:
+    displayName: Engineering
+    parent: aida-team
+    email: engineering@example.com
+    picture: https://example.com/engineering.jpg
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: frontend-team
+  title: Frontend team
+  description: "team responsible for frontend development and UI/UX"
+spec:
+  type: team
+  parent: engineering
+  children: []
+  profile:
+    displayName: Frontend team
+    email: frontend@example.com
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: backend-team
+  title: Backend team
+  description: "team responsible for backend services and APIs"
+spec:
+  type: team
+  parent: engineering
+  children: []
+  profile:
+    displayName: Backend team
+    email: backend@example.com
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: devops-team
+  title: DevOps team
+  description: "team responsible for infrastructure and deployment"
+spec:
+  type: team
+  parent: engineering
+  children: []
+  profile:
+    displayName: DevOps team
+    email: devops@example.com
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: backstage-demo
+  title: Backstage Demo
+  description: "The Demo project of backstage"
+  tags:
+    - demo
+    - poc
+spec:
+  owner: engineering
+  profile:
+    displayName: Backstage Demo
+    email: notifications@company.com
+    picture: https://avatars.githubusercontent.com/u/567890123?s=200&v=4
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: wen-peng
+  title: Senior Frontend Engineer
+  description: "Lead frontend developer with 5+ years experience"
+spec:
+  profile:
+    displayName: wen peng
+    email: wenpeng.lei@ncsi.com.cn
+    picture: https://example.com/john.jpg
+  memberOf: [frontend-team, engineering,aida-team]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: xiong-jian
+  title: Senior Frontend Engineer
+  description: "Lead frontend developer with 5+ years experience"
+spec:
+  profile:
+    displayName: Xiong Jian
+    email: xiongjian@ncsi.com.cn
+    picture: https://example.com/john.jpg
+  memberOf: [frontend-team, engineering,aida-team]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: zi-yang
+  title: Backend Architect
+  description: "Senior backend engineer specializing in microservices"
+spec:
+  profile:
+    displayName: Ji Zi Yang
+    email: ziyang@ncsi.com.cn
+    picture: https://example.com/jane.jpg
+  memberOf: [backend-team, engineering,aida-team]
+  
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: guest
+  title: guest
+  description: "guest"
+spec:
+  profile:
+    displayName: guest
+    email: guest@ncsi.com.cn
+    picture: https://example.com/jane.jpg
+  memberOf: [aida-team]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: shi-kai
+  title: DevOps Lead
+  description: "Infrastructure and deployment specialist"
+spec:
+  profile:
+    displayName: Shi Kai
+    email: shikaiz@ncsi.com.cn
+    picture: https://example.com/mike.jpg
+  memberOf: [devops-team, engineering,aida-team]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: nie-fang
+  title: Backend Architect
+  description: "Senior backend engineer specializing in microservices"
+spec:
+  profile:
+    displayName: Nie Fang
+    email: fang.nie@ncsi.com.cn
+    picture: https://example.com/mike.jpg
+  memberOf: [backend-team, engineering,aida-team]

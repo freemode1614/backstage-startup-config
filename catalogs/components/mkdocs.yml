@@ -1,0 +1,4 @@
+site_name: a-python-library
+docs_dir: docs
+plugins:
+  - techdocs-core

@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: portkey-admin-api
+  description: Portkey's admin API
+  tags:
+    - ai-gateway
+    - api
+    - rest
+spec:
+  type: openapi
+  lifecycle: production
+  owner: engineering
+  definition:
+    $text: https://github.com/Portkey-AI/openapi/blob/master/openapi.yaml

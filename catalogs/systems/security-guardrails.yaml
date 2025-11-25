@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: security-guardrails
+  description: Everything related to security-guardrails
+  tags:
+    - portal
+spec:
+  owner: engineering
+  domain: ai
+  type: service

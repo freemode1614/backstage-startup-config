@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: techdocs
+  description: A collection of all techdocs
+spec:
+  targets:
+    - ./techdocs/ai-gateway/techdocs.yaml
+    - ./techdocs/fastapi-backend-template/techdocs.yaml
+    - ./techdocs/llm-ops/techdocs.yaml

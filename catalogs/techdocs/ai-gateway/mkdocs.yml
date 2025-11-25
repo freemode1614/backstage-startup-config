@@ -1,0 +1,4 @@
+site_name: ai-gateway-docs
+docs_dir: docs
+plugins:
+  - techdocs-core
